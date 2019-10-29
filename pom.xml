@@ -10,7 +10,7 @@
     <modules>
         <module>market</module>
         <module>router</module>
-        <module>client</module>
+        <module>broker</module>
     </modules>
     <packaging>pom</packaging>
 
