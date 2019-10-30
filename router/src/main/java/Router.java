@@ -27,26 +27,39 @@ public class Router {
     public void runServer() {
         while (true) {
             Future<AsynchronousSocketChannel> socketFuture = serverChannel.accept();
+            System.out.println("Accepting a new connection...");
             try {
                 clientChannel = socketFuture.get();
                 Callable<String> worker = new Callable<String>() {
                     @Override
                     public String call() throws Exception {
                         String host = clientChannel.getRemoteAddress().toString();
-                        while (true) {
-                            System.out.println("Incoming connection from: " + host);
-                            ByteBuffer buffer = ByteBuffer.allocate(1024);
-                            Future<Integer> readResult = clientChannel.read(buffer);
-                            readResult.get();
+                        System.out.println("Incoming connection from: " + host);
+
+                        final ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+
+                        while (clientChannel.read(buffer).get() != -1) {
+                            System.out.println("Incoming message from: " + host);
+
                             buffer.flip();
-                            String message = new String(buffer.array()).trim();
-                            if (message.equals("bye")) {
-                                break;
+                            System.out.println("1");
+
+//                            String message = new String(buffer.array()).trim();
+//                            System.out.println("2");
+//                            if (message.equals("bye")) {
+//                                break;
+//                            }
+                            System.out.println("3");
+
+                            clientChannel.write(buffer).get();
+                            System.out.println("4");
+
+                            if (buffer.hasRemaining()) {
+                                buffer.compact();
+                            } else {
+                                buffer.clear();
                             }
-                            buffer = ByteBuffer.wrap(new String(message).getBytes());
-                            Future<Integer> writeResult = clientChannel.write(buffer);
-                            writeResult.get();
-                            buffer.clear();
+                            System.out.println("5");
                         }
 
                         clientChannel.close();
