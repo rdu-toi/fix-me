@@ -7,37 +7,48 @@ import java.util.ArrayList;
 import java.util.concurrent.*;
 
 public class Router {
-    private static ExecutorService taskExecutor = Executors.newCachedThreadPool(Executors.defaultThreadFactory());
-    private ServerSocketChannel serverChannel;
-    private static ArrayList<ClientHandler> clients = new ArrayList<>();
 
-    public Router() {
+    public static ExecutorService taskExecutor = Executors.newCachedThreadPool(Executors.defaultThreadFactory());
+    private static ArrayList<ClientHandler> brokerClients = new ArrayList<>();
+    private static ArrayList<ClientHandler> marketClients = new ArrayList<>();
+    private static ServerSocketChannel brokerChannel;
+    private static ServerSocketChannel marketChannel;
+
+    public Router() throws IOException {
+        setUpServers(5001, marketChannel, marketClients);
+        setUpServers(5000, brokerChannel, brokerClients);
+    }
+
+    public void setUpServers(int port, ServerSocketChannel server, ArrayList<ClientHandler> clients) throws IOException  {
         try {
-            serverChannel = ServerSocketChannel.open();
-            serverChannel.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
-            serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            InetSocketAddress hostAddress = new InetSocketAddress("localhost", 5001);
-            serverChannel.bind(hostAddress);
+            server = ServerSocketChannel.open();
+//            server.configureBlocking(false);
+            server.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
+            server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            InetSocketAddress hostAddress = new InetSocketAddress("localhost", port);
+            server.bind(hostAddress);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        runServer(server, clients);
     }
 
-    public void runServer() throws IOException {
-        while (true) {
-            System.out.println("[ROUTER] Waiting for client connection...");
-            SocketChannel client = serverChannel.accept();
-            client.configureBlocking(false);
-            System.out.println("[ROUTER] Connected to client!");
-            ClientHandler clientThread = new ClientHandler(client);
-            clients.add(clientThread);
-            taskExecutor.execute(clientThread);
-        }
+    public void runServer(ServerSocketChannel server, ArrayList<ClientHandler> clients) throws IOException {
+        ServerHandler serverThread = new ServerHandler(server, clients);
+        taskExecutor.execute(serverThread);
+//        while (true) {
+//            System.out.println("[ROUTER] Waiting for client connection...");
+//            SocketChannel client = server.accept();
+//            client.configureBlocking(false);
+//            System.out.println("[ROUTER] Connected to client!");
+//            ClientHandler clientThread = new ClientHandler(client);
+//            clients.add(clientThread);
+//            taskExecutor.execute(clientThread);
+//        }
     }
 
     public static void main(String[] args) throws IOException {
         Router server = new Router();
-        server.runServer();
     }
 
 }

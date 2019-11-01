@@ -13,7 +13,7 @@ public class Broker {
     private Broker() {
         try {
             client = SocketChannel.open();
-            InetSocketAddress hostAddress = new InetSocketAddress("localhost", 5001);
+            InetSocketAddress hostAddress = new InetSocketAddress("localhost", 5000);
             client.connect(hostAddress);
             client.configureBlocking(false);
 
