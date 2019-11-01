@@ -3,22 +3,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.nio.channels.SocketChannel;
 
 public class Broker {
 
-    private AsynchronousSocketChannel client;
-    private Future<Void> future;
+    private SocketChannel client;
     private static Broker instance;
 
     private Broker() {
         try {
-            client = AsynchronousSocketChannel.open();
-            InetSocketAddress hostAddress = new InetSocketAddress("localhost", 5000);
-            future = client.connect(hostAddress);
-            start();
+            client = SocketChannel.open();
+            InetSocketAddress hostAddress = new InetSocketAddress("localhost", 5001);
+            client.connect(hostAddress);
+            client.configureBlocking(false);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -31,31 +28,12 @@ public class Broker {
         return instance;
     }
 
-    private void start() {
-        try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String sendMessage(String message) {
+    public String sendMessage(String message) throws IOException {
         byte[] byteMsg = message.getBytes();
         ByteBuffer buffer = ByteBuffer.wrap(byteMsg);
-        Future<Integer> writeResult = client.write(buffer);
-
-        try {
-            writeResult.get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        client.write(buffer);
         buffer.flip();
-        Future<Integer> readResult = client.read(buffer);
-        try {
-            readResult.get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        client.read(buffer);
         String echo = new String(buffer.array()).trim();
         buffer.clear();
         return echo;
@@ -71,15 +49,16 @@ public class Broker {
 
     public static void main(String[] args) throws Exception {
         Broker client = Broker.getInstance();
-        client.start();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String line;
         System.out.println("Message to server:");
         while ((line = br.readLine()) != null) {
             String response = client.sendMessage(line);
             System.out.println("response from server: " + response);
+            if (response.equals("bye")) break;
             System.out.println("Message to server:");
         }
+        client.stop();
     }
 
 }
