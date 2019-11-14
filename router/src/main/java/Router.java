@@ -1,50 +1,57 @@
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.StandardSocketOptions;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.*;
 
 public class Router {
 
     public static ExecutorService taskExecutor = Executors.newCachedThreadPool(Executors.defaultThreadFactory());
-    private static ArrayList<ClientHandler> brokerClients = new ArrayList<>();
-    private static ArrayList<ClientHandler> marketClients = new ArrayList<>();
-    private static ServerSocketChannel brokerChannel;
-    private static ServerSocketChannel marketChannel;
+    public static HashMap<Integer, SocketChannel> brokers = new HashMap<Integer, SocketChannel>();
+    public static HashMap<Integer, SocketChannel> markets = new HashMap<Integer, SocketChannel>();
+    public static ServerSocketChannel brokerChannel;
+    public static ServerSocketChannel marketChannel;
+    public static int marketId = 000000;
+    public static int brokerId = 000000;
 
     public Router() throws IOException {
-        setUpServers(5001, marketChannel, marketClients);
-        setUpServers(5000, brokerChannel, brokerClients);
+        setUpServers(5001, 1);
+        setUpServers(5000, 2);
     }
 
-    public void setUpServers(int port, ServerSocketChannel server, ArrayList<ClientHandler> clients) throws IOException  {
-        try {
-            server = ServerSocketChannel.open();
-//            server.configureBlocking(false);
-            server.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
-            server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            InetSocketAddress hostAddress = new InetSocketAddress("localhost", port);
-            server.bind(hostAddress);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void setUpServers(int port, int serverFlag) throws IOException  {
+        if (serverFlag == 1) {
+            try {
+                marketChannel = ServerSocketChannel.open();
+                ServerSocket serverSocket = marketChannel.socket();
+                marketChannel.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
+                marketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                InetSocketAddress hostAddress = new InetSocketAddress("localhost", port);
+                serverSocket.bind(hostAddress);
+                marketChannel.configureBlocking(false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ServerHandler serverThread = new ServerHandler(serverFlag);
+            taskExecutor.execute(serverThread);
+        } else {
+            try {
+                brokerChannel = ServerSocketChannel.open();
+                ServerSocket serverSocket = brokerChannel.socket();
+                brokerChannel.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
+                brokerChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                InetSocketAddress hostAddress = new InetSocketAddress("localhost", port);
+                serverSocket.bind(hostAddress);
+                brokerChannel.configureBlocking(false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ServerHandler serverThread = new ServerHandler(serverFlag);
+            taskExecutor.execute(serverThread);
         }
-        runServer(server, clients);
-    }
-
-    public void runServer(ServerSocketChannel server, ArrayList<ClientHandler> clients) throws IOException {
-        ServerHandler serverThread = new ServerHandler(server, clients);
-        taskExecutor.execute(serverThread);
-//        while (true) {
-//            System.out.println("[ROUTER] Waiting for client connection...");
-//            SocketChannel client = server.accept();
-//            client.configureBlocking(false);
-//            System.out.println("[ROUTER] Connected to client!");
-//            ClientHandler clientThread = new ClientHandler(client);
-//            clients.add(clientThread);
-//            taskExecutor.execute(clientThread);
-//        }
     }
 
     public static void main(String[] args) throws IOException {

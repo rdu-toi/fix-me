@@ -7,58 +7,37 @@ import java.nio.channels.SocketChannel;
 
 public class Broker {
 
-    private SocketChannel client;
-    private static Broker instance;
-
-    private Broker() {
+    public static void main(String[] args) {
+        String id;
         try {
-            client = SocketChannel.open();
-            InetSocketAddress hostAddress = new InetSocketAddress("localhost", 5000);
-            client.connect(hostAddress);
-            client.configureBlocking(false);
+            SocketChannel client = SocketChannel.open(new InetSocketAddress("localhost", 5000));
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            client.read(buffer);
+            String data = new String(buffer.array()).trim();
+            id = data;
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            // String[] messages = {"I like non-blocking servers", "Hello non-blocking world!", "One more message.."};
+            System.out.println("Starting client...");
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+            while (true) {
+                String message = br.readLine();
+                String msg = id + "|" + message;
+                System.out.println("Prepared message: " + msg);
+                buffer = ByteBuffer.allocate(1024);
+                buffer.put(msg.getBytes());
+                buffer.flip();
+                int bytesWritten = client.write(buffer);
+                System.out.println(String.format("Sending Message: %s\nbufferBytes: %d", msg, bytesWritten));
+                if (message.equals("exit"))
+                    break;
+            }
 
-    public static Broker getInstance() {
-        if (instance == null)
-            instance = new Broker();
-        return instance;
-    }
-
-    public String sendMessage(String message) throws IOException {
-        byte[] byteMsg = message.getBytes();
-        ByteBuffer buffer = ByteBuffer.wrap(byteMsg);
-        client.write(buffer);
-        buffer.flip();
-        client.read(buffer);
-        String echo = new String(buffer.array()).trim();
-        buffer.clear();
-        return echo;
-    }
-
-    public void stop() {
-        try {
             client.close();
+            System.out.println("Client connection closed");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        Broker client = Broker.getInstance();
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String line;
-        System.out.println("Message to server:");
-        while ((line = br.readLine()) != null) {
-            String response = client.sendMessage(line);
-            System.out.println("response from server: " + response);
-            if (response.equals("bye")) break;
-            System.out.println("Message to server:");
-        }
-        client.stop();
     }
 
 }
