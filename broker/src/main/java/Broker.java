@@ -16,7 +16,6 @@ public class Broker {
             String data = new String(buffer.array()).trim();
             id = data;
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            // String[] messages = {"I like non-blocking servers", "Hello non-blocking world!", "One more message.."};
             System.out.println("Starting client...");
 
             while (true) {
