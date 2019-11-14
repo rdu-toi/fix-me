@@ -3,6 +3,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -99,8 +100,7 @@ public class ServerHandler implements Runnable {
         client.read(buffer);
         String data = new String(buffer.array()).trim();
         if (data.length() > 0) {
-            String[] checkExit = data.split("|");
-            System.out.println("Received message: " + data);
+            String[] checkExit = data.split("\\|");
             if (checkExit[1].equalsIgnoreCase("exit")) {
                 client.close();
                 // Remove client from either market or broker hashmaps based on client Id

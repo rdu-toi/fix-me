@@ -31,6 +31,7 @@ public class Broker {
                     break;
             }
 
+            br.close();
             client.close();
             System.out.println("Client connection closed");
 
