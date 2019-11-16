@@ -3,13 +3,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
 public class ServerHandler implements Runnable {
 
-    private static Selector selector = null;
+    private Selector selector = null;
     private int serverFlag;
 
     public ServerHandler(int serverFlag){
@@ -64,6 +63,8 @@ public class ServerHandler implements Runnable {
                 client = Router.marketChannel.accept();
                 client.configureBlocking(false);
                 client.register(selector, SelectionKey.OP_READ);
+                // String portNum = String.valueOf(client.getLocalAddress());
+                // System.out.println(portNum.substring(portNum.indexOf(":") + 1));
                 Router.markets.put(++Router.marketId, client);
                 System.out.println("Number of connected markets: " + Router.markets.size());
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -100,15 +101,40 @@ public class ServerHandler implements Runnable {
         client.read(buffer);
         String data = new String(buffer.array()).trim();
         if (data.length() > 0) {
-            String[] checkExit = data.split("\\|");
-            if (checkExit[1].equalsIgnoreCase("exit")) {
+            String[] messageArray = data.split("\\|");
+            if (messageArray[1].equalsIgnoreCase("exit")) {
                 client.close();
                 // Remove client from either market or broker hashmaps based on client Id
                 if (serverFlag == 1)
-                    Router.markets.remove(Integer.parseInt(checkExit[0]));
+                    Router.markets.remove(Integer.parseInt(messageArray[0]));
                 else
-                    Router.brokers.remove(Integer.parseInt(checkExit[0]));
+                    Router.brokers.remove(Integer.parseInt(messageArray[0]));
                 System.out.println("Connection closed...");
+            }
+            for (String message: messageArray) {
+                if (message.contains("100=") && serverFlag == 1) {
+                    if (serverFlag == 1) {
+                        SocketChannel brokerClient = Router.markets.get(Integer.parseInt(message.substring(message.indexOf("100=") + 1)));
+                        buffer = ByteBuffer.allocate(1024);
+                        buffer.put(data.getBytes());
+                        buffer.flip();
+                        brokerClient.write(buffer);
+                    }
+                    // else {
+                    //     SocketChannel marketClient = Router.markets.get(Integer.parseInt(message.substring(message.indexOf("100=") + 1)));
+                    //     buffer = ByteBuffer.allocate(1024);
+                    //     buffer.put(data.getBytes());
+                    //     buffer.flip();
+                    //     marketClient.write(buffer);
+                    //     }
+                }
+                else {
+                    SocketChannel marketClient = Router.markets.get(Integer.parseInt(message.substring(message.indexOf("100=") + 1)));
+                    buffer = ByteBuffer.allocate(1024);
+                    buffer.put(data.getBytes());
+                    buffer.flip();
+                    marketClient.write(buffer);
+                    }
             }
         }
     }
