@@ -94,7 +94,10 @@ public class ServerHandler implements Runnable {
     }
 
     private void handleRead(SelectionKey key) throws IOException {
-        System.out.println("Reading...");
+        if (serverFlag == 1)
+            System.out.println("Reading from market...");
+        else
+            System.out.println("Reading from client...");
         SocketChannel client = (SocketChannel) key.channel();
 
         ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -114,7 +117,9 @@ public class ServerHandler implements Runnable {
             for (String message: messageArray) {
                 if (message.contains("100=") && serverFlag == 1) {
                     if (serverFlag == 1) {
-                        SocketChannel brokerClient = Router.markets.get(Integer.parseInt(message.substring(message.indexOf("100=") + 1)));
+                        int brokerId = Integer.parseInt(message.substring(message.indexOf("100=") + 1));
+                        System.out.println("Broker looking to connect to market of ID: " + brokerId);
+                        SocketChannel brokerClient = Router.brokers.get(brokerId);
                         buffer = ByteBuffer.allocate(1024);
                         buffer.put(data.getBytes());
                         buffer.flip();
@@ -129,7 +134,9 @@ public class ServerHandler implements Runnable {
                     //     }
                 }
                 else {
-                    SocketChannel marketClient = Router.markets.get(Integer.parseInt(message.substring(message.indexOf("100=") + 1)));
+                    int marketId = Integer.parseInt(message.substring(message.indexOf("100=") + 1));
+                    System.out.println("Broker looking to connect to market of ID: " + marketId);
+                    SocketChannel marketClient = Router.markets.get(marketId);
                     buffer = ByteBuffer.allocate(1024);
                     buffer.put(data.getBytes());
                     buffer.flip();

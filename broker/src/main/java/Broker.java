@@ -29,6 +29,10 @@ public class Broker {
                 System.out.println(String.format("Sending Message: %s\nbufferBytes: %d", msg, bytesWritten));
                 if (message.equals("exit"))
                     break;
+                buffer = ByteBuffer.allocate(1024);
+                client.read(buffer);
+                String messageReceived = new String(buffer.array()).trim();
+                System.out.println("Received message: " + messageReceived);
             }
 
             br.close();
