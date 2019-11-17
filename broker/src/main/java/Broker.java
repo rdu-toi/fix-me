@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -15,11 +13,10 @@ public class Broker {
             client.read(buffer);
             String data = new String(buffer.array()).trim();
             id = data;
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Starting client...");
+            System.out.println("Started brokerClient!");
 
             while (true) {
-                String message = br.readLine();
+                String message = "8=FIX.4.2|109="+id+"40=1|54=1|48=ARWR|53=10|100=1|44=47.44"; // Still need to calculate and add checksum
                 String msg = id + "|" + message;
                 System.out.println("Prepared message: " + msg);
                 buffer = ByteBuffer.allocate(1024);
@@ -35,7 +32,6 @@ public class Broker {
                 System.out.println("Received message: " + messageReceived);
             }
 
-            br.close();
             client.close();
             System.out.println("Client connection closed");
 

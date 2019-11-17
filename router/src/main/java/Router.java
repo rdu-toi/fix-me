@@ -14,8 +14,8 @@ public class Router {
     public static HashMap<Integer, SocketChannel> markets = new HashMap<Integer, SocketChannel>();
     public static ServerSocketChannel brokerChannel;
     public static ServerSocketChannel marketChannel;
-    public static int marketId = 000000;
-    public static int brokerId = 000000;
+    public static int marketId = 0;
+    public static int brokerId = 0;
 
     public Router() throws IOException {
         setUpServers(5001, 1);

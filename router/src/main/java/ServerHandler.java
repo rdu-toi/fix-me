@@ -115,33 +115,26 @@ public class ServerHandler implements Runnable {
                 System.out.println("Connection closed...");
             }
             for (String message: messageArray) {
-                if (message.contains("100=") && serverFlag == 1) {
+                if (message.contains("100=")) {
                     if (serverFlag == 1) {
-                        int brokerId = Integer.parseInt(message.substring(message.indexOf("100=") + 1));
-                        System.out.println("Broker looking to connect to market of ID: " + brokerId);
+                        int brokerId = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
+                        System.out.println("Market looking to connect to broker of ID: " + brokerId);
                         SocketChannel brokerClient = Router.brokers.get(brokerId);
                         buffer = ByteBuffer.allocate(1024);
                         buffer.put(data.getBytes());
                         buffer.flip();
                         brokerClient.write(buffer);
                     }
-                    // else {
-                    //     SocketChannel marketClient = Router.markets.get(Integer.parseInt(message.substring(message.indexOf("100=") + 1)));
-                    //     buffer = ByteBuffer.allocate(1024);
-                    //     buffer.put(data.getBytes());
-                    //     buffer.flip();
-                    //     marketClient.write(buffer);
-                    //     }
+                    else {
+                        int marketId = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
+                        System.out.println("Broker looking to connect to market of ID: " + marketId);
+                        SocketChannel marketClient = Router.markets.get(marketId);
+                        buffer = ByteBuffer.allocate(1024);
+                        buffer.put(data.getBytes());
+                        buffer.flip();
+                        marketClient.write(buffer);
+                        }
                 }
-                else {
-                    int marketId = Integer.parseInt(message.substring(message.indexOf("100=") + 1));
-                    System.out.println("Broker looking to connect to market of ID: " + marketId);
-                    SocketChannel marketClient = Router.markets.get(marketId);
-                    buffer = ByteBuffer.allocate(1024);
-                    buffer.put(data.getBytes());
-                    buffer.flip();
-                    marketClient.write(buffer);
-                    }
             }
         }
     }

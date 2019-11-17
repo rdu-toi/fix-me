@@ -1,10 +1,19 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
+
+// FIX MESSAGE FORMAT:
+// BeginString(FIX Version) -	8=String [FIX.4.2]
+// ClientId				    -	109=Int
+// OrdType				    -	40=Int [1=Market]
+// Side(Buy or Sell)		-	54=Int [Buy=1, Sell=2]
+// SecurityID(Instrument)	-	48=String
+// NumShares			    -	53=Int
+// ExDestination			-	100=Int
+// Price				    -	44=Int
+// CheckSum			        -	10=Int
 
 public class Market {
 
@@ -13,10 +22,7 @@ public class Market {
         String brokerId;
 
         Instruments instruments = new Instruments();
-        HashMap<String, String[]> instrumentsList = instruments.getInstruments();
-        for (String i : instrumentsList.keySet()) {
-            System.out.println("Instrument: " + i + ", Quantity: " + instrumentsList.get(i)[0] + ", Price: " + instrumentsList.get(i)[1]);
-        }
+        instruments.printInstruments();
 
         try {
             SocketChannel client = SocketChannel.open(new InetSocketAddress("localhost", 5001));
@@ -24,12 +30,13 @@ public class Market {
             client.read(buffer);
             String data = new String(buffer.array()).trim();
             id = data;
-            System.out.println("Starting marketClient...");
+            System.out.println("Started marketClient!");
 
             while (true) {
                 buffer = ByteBuffer.allocate(1024);
                 client.read(buffer);
                 String messageReceived = new String(buffer.array()).trim();
+                Message message = new Message(messageReceived);
                 System.out.println("Received message: " + messageReceived);
                 if (messageReceived.equals("Just testing"))
                     break;

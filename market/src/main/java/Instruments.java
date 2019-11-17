@@ -27,15 +27,27 @@ public class Instruments {
           e.printStackTrace(); 
         }
 
-        Random rand = new Random();
-        int randNum = rand.nextInt(lines.size());
-        String rawInstruments = lines.get(randNum);
+        // Random rand = new Random();
+        // int randNum = rand.nextInt(lines.size());
+        // String rawInstruments = lines.get(randNum);
+        String rawInstruments = lines.get(0);
 
         String[] instrumentsArray = rawInstruments.split("\\|");
         for (String element: instrumentsArray) {
             String[] elementArray = element.split(",");
             String[] valueArray = {elementArray[1], elementArray[2]};
             instruments.put(elementArray[0], valueArray);
+        }
+    }
+
+    // public void changeQuanity(String , String quantity) {
+    //     int quantityInt = Integer.parseInt(quantity);
+
+    // }
+
+    public void printInstruments() {
+        for (String i : instruments.keySet()) {
+            System.out.println("Instrument: " + i + ", Quantity: " + instruments.get(i)[0] + ", Price: " + instruments.get(i)[1]);
         }
     }
 
