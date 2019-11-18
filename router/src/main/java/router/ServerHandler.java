@@ -69,7 +69,7 @@ public class ServerHandler implements Runnable {
                 client.configureBlocking(false);
                 client.register(selector, SelectionKey.OP_READ);
                 Router.markets.put(++Router.marketId, client);
-                System.out.println("[ROUTER]" + "\u001B[33m" + " Number of connected brokers: " + Router.markets.size() + "\u001B[0m");
+                System.out.println("[ROUTER]" + "\u001B[33m" + " Number of connected markets: " + Router.markets.size() + "\u001B[0m");
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
                 buffer.put(String.valueOf(Router.marketId).getBytes());
                 buffer.flip();

@@ -1,18 +1,18 @@
 2
 Working example (Change as needed):
-8=FIX.4.2|109=|40=1|54=1|48=ARWR|53=10|100=1|44=47|
+8=FIX.4.2|109=|40=1|54=2|48=ARWR|53=10|100=000001|44=47|
 
 BeginString Incorrect:
-8=FIX.5.0|109=|40=1|54=1|48=ARWR|53=10|100=1|44=47|
+8=FIX.5.0|109=|40=1|54=1|48=ARWR|53=10|100=000001|44=47|
 
 OrdType(An order to the Market) Incorrect:
-8=FIX.4.2|109=|40=5|54=1|48=ARWR|53=10|100=1|44=47|
+8=FIX.4.2|109=|40=5|54=1|48=ARWR|53=10|100=000001|44=47|
 
 Side(Buy or Sell) Incorrect:
-8=FIX.4.2|109=|40=1|54=3|48=ARWR|53=10|100=1|44=47|
+8=FIX.4.2|109=|40=1|54=3|48=ARWR|53=10|100=000001|44=47|
 
 SecurityID(Instrument) Incorrect:
-8=FIX.4.2|109=|40=1|54=1|48=INCORRECT|53=10|100=1|44=47|
+8=FIX.4.2|109=|40=1|54=1|48=INCORRECT|53=10|100=000001|44=47|
 
 FIX MESSAGE FORMAT:
     BeginString(FIX Version)-	8=String [FIX.4.2]
@@ -26,6 +26,6 @@ FIX MESSAGE FORMAT:
     CheckSum			    -	10=Int
 
 Working example:
-8=FIX.4.2|109=|40=1|54=1|48=ARWR|53=10|100=1|44=47|
+8=FIX.4.2|109=|40=1|54=1|48=ARWR|53=10|100=000001|44=47|
 
 NOTE: The ClientId is provided in the Broker Class during execution when assigned by the Router.
