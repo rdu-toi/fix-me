@@ -41,7 +41,7 @@ public class Broker {
             client.write(buffer);
 
             client.close();
-            System.out.println("Client connection closed");
+            System.out.println("Client connection closed!");
 
         } catch (IOException e) {
             e.printStackTrace();

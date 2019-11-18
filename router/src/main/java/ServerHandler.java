@@ -107,11 +107,14 @@ public class ServerHandler implements Runnable {
             if (messageArray[1].equalsIgnoreCase("exit")) {
                 client.close();
                 int clientToRemove = Integer.parseInt(messageArray[0].substring(messageArray[0].indexOf("109=") + 4));
-                if (serverFlag == 1)
+                if (serverFlag == 1) {
                     Router.markets.remove(clientToRemove);
-                else
+                    System.out.println("[ROUTER]" + "\u001B[91m" + " MarketClient[id=" + clientToRemove + "] disconnected" + "\u001B[0m");
+                }
+                else {
                     Router.brokers.remove(clientToRemove);
-                System.out.println("[ROUTER]" + "\u001B[91m" + " Client[id=" + clientToRemove + "] disconnected" + "\u001B[0m");
+                    System.out.println("[ROUTER]" + "\u001B[91m" + " BrokerClient[id=" + clientToRemove + "] disconnected" + "\u001B[0m");
+                }
                 return;
             }
             for (String message: messageArray) {
@@ -122,6 +125,17 @@ public class ServerHandler implements Runnable {
                         if (!Router.brokers.containsKey(brokerId))
                             return ;
                         SocketChannel brokerClient = Router.brokers.get(brokerId);
+                        if (!checkSum.compare(data)) {
+                            buffer = ByteBuffer.allocate(1024);
+                            buffer.put("[Router] Checksum incorrect. Get it together mate!".getBytes());
+                            buffer.flip();
+                            client.write(buffer);
+                            buffer = ByteBuffer.allocate(1024);
+                            buffer.put("[Router] The market messed up. Order Rejected!".getBytes());
+                            buffer.flip();
+                            brokerClient.write(buffer);
+                            return ;
+                        }
                         buffer = ByteBuffer.allocate(1024);
                         buffer.put(data.getBytes());
                         buffer.flip();
@@ -142,7 +156,7 @@ public class ServerHandler implements Runnable {
                         buffer.put(data.getBytes());
                         buffer.flip();
                         marketClient.write(buffer);
-                        }
+                    }
                 }
             }
         }
