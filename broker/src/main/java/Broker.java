@@ -1,12 +1,19 @@
+package broker.src.main.java;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 public class Broker {
 
+    public static String id;
     public static void main(String[] args) {
-        String id;
         try {
             SocketChannel client = SocketChannel.open(new InetSocketAddress("localhost", 5000));
             ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -15,7 +22,7 @@ public class Broker {
             id = data;
             System.out.println("Started brokerClient!");
 
-            String message = "8=FIX.4.2|109="+id+"|40=1|54=1|48=ARWR|53=10|100=1|44=47"; // Still need to calculate and add checksum
+            String message = getMessage(); // Still need to calculate and add checksum
             System.out.println("Prepared message: " + message);
             System.out.println("Message Sent!");
             buffer = ByteBuffer.allocate(1024);
@@ -39,6 +46,27 @@ public class Broker {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getMessage() {
+        List<String> lines = Collections.emptyList(); 
+        try
+        {
+          lines = Files.readAllLines(Paths.get(System.getProperty("user.dir") + "/broker/src/main/java/", "messages.txt"), StandardCharsets.UTF_8); 
+        } 
+
+        catch (IOException e) 
+        { 
+          e.printStackTrace(); 
+        }
+
+        int choice = Integer.parseInt(lines.get(0));
+
+        String rawInstruments = lines.get(choice);
+
+        String[] instrumentsArray = rawInstruments.split("109=");
+        String message = instrumentsArray[0] + "109=" + id + instrumentsArray[1];
+        return message;
     }
 
 }

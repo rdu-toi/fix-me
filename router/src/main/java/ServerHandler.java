@@ -118,6 +118,8 @@ public class ServerHandler implements Runnable {
                     if (serverFlag == 1) {
                         int brokerId = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
                         System.out.println("[ROUTER]" + "\u001B[33m" + " Market looking to connect to broker of ID: " + brokerId + "\u001B[0m");
+                        if (!Router.brokers.containsKey(brokerId))
+                            return ;
                         SocketChannel brokerClient = Router.brokers.get(brokerId);
                         buffer = ByteBuffer.allocate(1024);
                         buffer.put(data.getBytes());
@@ -127,6 +129,13 @@ public class ServerHandler implements Runnable {
                     else {
                         int marketId = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
                         System.out.println("[ROUTER]" + "\u001B[33m" + " Broker looking to connect to market of ID: " + marketId + "\u001B[0m");
+                        if (!Router.markets.containsKey(marketId)) {
+                            buffer = ByteBuffer.allocate(1024);
+                            buffer.put("[ROUTER] Rejected".getBytes());
+                            buffer.flip();
+                            client.write(buffer);
+                            return ;
+                        }
                         SocketChannel marketClient = Router.markets.get(marketId);
                         buffer = ByteBuffer.allocate(1024);
                         buffer.put(data.getBytes());

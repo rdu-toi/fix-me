@@ -17,42 +17,36 @@ public class Message {
             for (String message : messageArray) {
                 if (message.contains("8=") && message.equals("8="+message.substring(message.indexOf("8=") + 2))) {                                                       // BeginString(FIX Version) -	8=String [FIX.4.2]
                     String value = message.substring(message.indexOf("8=") + 2);
-                    if (!value.equals("FIX.4.2")) {
+                    if (!value.equals("FIX.4.2"))
                         this.setValid(false);
-                        return;
-                    }
                     this.setBeginString(value);
-                } else if (message.contains("109=")) {                                              // ClientId				    -	109=Int
+                } else if (message.contains("109=")) {                                              // ClientId: 109=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("109=") + 4));
                     this.setClientId(value);
-                } else if (message.contains("40=")) {                                               // OrdType				    -	40=Int [1=Market]
+                } else if (message.contains("40=")) {                                               // OrdType: 40=Int [1=Market]
                     int value = Integer.parseInt(message.substring(message.indexOf("40=") + 3));
-                    if (value != 1) {
+                    if (value != 1)
                         this.setValid(false);
-                        return;
-                    }
                     this.setOrdType(value);
-                } else if (message.contains("54=")) {                                               // Side(Buy or Sell)		-	54=Int [Buy=1, Sell=2]
+                } else if (message.contains("54=")) {                                               // Side(Buy or Sell): 54=Int [Buy=1, Sell=2]
                     int value = Integer.parseInt(message.substring(message.indexOf("54=") + 3));
                     this.setSide(value);
-                } else if (message.contains("48=")) {                                               // SecurityID(Instrument)	-	48=String
+                } else if (message.contains("48=")) {                                               // SecurityID(Instrument): 48=String
                     String value = message.substring(message.indexOf("48=") + 3);
                     this.setSecurityID(value);
-                } else if (message.contains("53=")) {                                               // NumShares			    -	53=Int
+                } else if (message.contains("53=")) {                                               // NumShares: 53=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("53=") + 3));
-                    if (value < 0) {
+                    if (value < 0)
                         this.setValid(false);
-                        return;
-                    }
                     this.setNumShares(value);
-                } else if (message.contains("100=")) {                                              // ExDestination			-	100=Int
+                } else if (message.contains("100=")) {                                              // ExDestination: 100=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
                     this.setExDestination(value);
-                } else if (message.contains("44=")) {                                               // Price				    -	44=Int
+                } else if (message.contains("44=")) {                                               // Price: 44=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("44=") + 3));
                     this.setPrice(value);
                 }
-                // else if (message.contains("10=")) {                                                 // CheckSum			        -	10=Int
+                // else if (message.contains("10=")) {                                                 // CheckSum: 10=Int
                 // }
             }
         } catch (NumberFormatException | NullPointerException nfe) {
@@ -69,17 +63,17 @@ public class Message {
             return false;
         else if (this.securityID == null)
             return false;
-        else if (this.clientId == 0)
+        else if (this.clientId <= 0)
             return false;
-        else if (this.ordType == 0)
+        else if (this.ordType != 1)
             return false;
-        else if (this.side == 0)
+        else if (this.side <= 0 || this.side >= 3)
             return false;
-        else if (this.numShares == 0)
+        else if (this.numShares <= 0)
             return false;
-        else if (this.exDestination == 0)
+        else if (this.exDestination <= 0)
             return false;
-        else if (this.price == 0)
+        else if (this.price <= 0)
             return false;
         return true;
     }

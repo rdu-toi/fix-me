@@ -3,17 +3,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-// FIX MESSAGE FORMAT:
-// BeginString(FIX Version) -	8=String [FIX.4.2]
-// ClientId				    -	109=Int
-// OrdType				    -	40=Int [1=Market]
-// Side(Buy or Sell)		-	54=Int [Buy=1, Sell=2]
-// SecurityID(Instrument)	-	48=String
-// NumShares			    -	53=Int
-// ExDestination			-	100=Int
-// Price				    -	44=Int
-// CheckSum			        -	10=Int
-
 public class Market {
 
     public static void main(String[] args) {
