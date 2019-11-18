@@ -79,7 +79,7 @@ public class BrokerHandler implements Runnable {
 
 	public void exit() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-        String exit = "109=" + String.format("%06d", Integer.parseInt(id)) + "|exit|10=";
+        String exit = "8=FIX.4.2|109=" + String.format("%06d", Integer.parseInt(id)) + "|exit|10=";
         String finalExit = exit + checkSum.convert(exit) + "|";
         buffer.put(finalExit.getBytes());
         buffer.flip();

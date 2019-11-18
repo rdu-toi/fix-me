@@ -17,7 +17,6 @@ public class Broker {
                     break;
             }
             brokerHandler.exit();
-            System.out.println("Client connection closed!");
 
         } catch (IOException e) {
             e.printStackTrace();

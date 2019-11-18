@@ -24,7 +24,7 @@ public class Router {
         setUpServers(5000, 2);
     }
 
-    public void setUpServers(int port, int serverFlag) throws IOException  {
+    public void setUpServers(int port, int serverFlag) throws IOException {
         if (serverFlag == 1) {
             try {
                 marketChannel = ServerSocketChannel.open();
@@ -58,6 +58,23 @@ public class Router {
 
     public static void main(String[] args) throws IOException {
         Router server = new Router();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        server.shutDown();
+    }
+
+    private void shutDown() {
+        try {
+            brokerChannel.close();
+            marketChannel.close();
+            taskExecutor.shutdownNow();
+        } catch (IOException e){
+            System.out.println(e);
+        }
     }
 
 }
