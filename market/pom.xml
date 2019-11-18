@@ -24,7 +24,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>Market</mainClass>
+                            <mainClass>market.Market</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

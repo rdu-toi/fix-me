@@ -1,3 +1,5 @@
+package market;
+
 import java.nio.charset.StandardCharsets;
 
 public class Checksum {

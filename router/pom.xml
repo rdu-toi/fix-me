@@ -24,7 +24,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>Router</mainClass>
+                            <mainClass>router.Router</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

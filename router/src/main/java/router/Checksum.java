@@ -1,3 +1,5 @@
+package router;
+
 import java.nio.charset.StandardCharsets;
 
 public class Checksum {
@@ -15,12 +17,14 @@ public class Checksum {
 
         int checkSum = total % 256;
         String checkSumString = String.valueOf(checkSum);
+        System.out.println("New checkSum: " + checkSumString);
 
         return checkSumString;
     }
 
     public boolean compare(String message) {
         String givenCheckSum = message.substring(message.indexOf("|10=") + 4).replace("|", "");
+        System.out.println("Given checkSum: " + givenCheckSum);
         String messageWithoutCheckSum = message.replace(message.substring(message.indexOf("|10=") + 1), "");
 
         if (convert(messageWithoutCheckSum).equals(givenCheckSum))

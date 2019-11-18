@@ -1,3 +1,5 @@
+package market;
+
 public class Message {
 
     private boolean isValid = true;
