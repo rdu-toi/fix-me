@@ -104,7 +104,6 @@ public class ServerHandler implements Runnable {
         String data = new String(buffer.array()).trim();
         if (data.length() > 0) {
             String[] messageArray = data.split("\\|");
-            System.out.println(messageArray[0]);
             if (messageArray[1].equalsIgnoreCase("exit")) {
                 client.close();
                 int clientToRemove = Integer.parseInt(messageArray[0].substring(messageArray[0].indexOf("109=") + 4));
@@ -131,7 +130,7 @@ public class ServerHandler implements Runnable {
                     else {
                         int marketId = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
                         System.out.println("[ROUTER]" + "\u001B[33m" + " Broker looking to connect to market of ID: " + marketId + "\u001B[0m");
-                        if (!checkSum.compare(data) && !Router.markets.containsKey(marketId)) {
+                        if (!checkSum.compare(data) || !Router.markets.containsKey(marketId)) {
                             buffer = ByteBuffer.allocate(1024);
                             buffer.put("[ROUTER] Rejected".getBytes());
                             buffer.flip();

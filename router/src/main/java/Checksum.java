@@ -20,8 +20,8 @@ public class Checksum {
     }
 
     public boolean compare(String message) {
-        String givenCheckSum = message.substring(message.indexOf("|10=") + 4);
-        String messageWithoutCheckSum = message.replace(message.substring(message.indexOf("|10=")), "");
+        String givenCheckSum = message.substring(message.indexOf("|10=") + 4).replace("|", "");
+        String messageWithoutCheckSum = message.replace(message.substring(message.indexOf("|10=") + 1), "");
 
         if (convert(messageWithoutCheckSum).equals(givenCheckSum))
             return true;

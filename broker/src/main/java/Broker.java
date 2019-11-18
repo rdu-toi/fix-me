@@ -21,7 +21,7 @@ public class Broker {
             System.out.println("Started brokerClient!");
 
             String message = getMessage(id); // Still need to calculate and add checksum
-            String finalMessage = checkSum.convert(message);
+            String finalMessage = message + "10=" + checkSum.convert(message) + "|";
             System.out.println("Prepared message: " + message);
             System.out.println("Message Sent!");
             buffer = ByteBuffer.allocate(1024);
@@ -34,8 +34,8 @@ public class Broker {
             System.out.println("Received message: " + messageReceived);
             
             buffer = ByteBuffer.allocate(1024);
-            String exit = "109="+id+"|exit|";
-            String finalExit = checkSum.convert(exit);
+            String exit = "109="+id+"|exit|10=";
+            String finalExit = exit + checkSum.convert(exit) + "|";
             buffer.put(finalExit.getBytes());
             buffer.flip();
             client.write(buffer);
