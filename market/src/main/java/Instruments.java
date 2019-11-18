@@ -5,11 +5,10 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 public class Instruments {
 
-    private HashMap<String, String[]> instruments = new HashMap<String, String[]>();
+    private HashMap<String, Integer[]> instruments = new HashMap<String, Integer[]>();
 
     public Instruments() {
         this.getInstrumentsFromFile();
@@ -27,31 +26,53 @@ public class Instruments {
           e.printStackTrace(); 
         }
 
-        // Random rand = new Random();
-        // int randNum = rand.nextInt(lines.size());
-        // String rawInstruments = lines.get(randNum);
-        String rawInstruments = lines.get(0);
+        int choice = Integer.parseInt(lines.get(0));
+
+        String rawInstruments = lines.get(choice);
 
         String[] instrumentsArray = rawInstruments.split("\\|");
         for (String element: instrumentsArray) {
             String[] elementArray = element.split(",");
-            String[] valueArray = {elementArray[1], elementArray[2]};
+            Integer[] valueArray = {Integer.parseInt(elementArray[1]), Integer.parseInt(elementArray[2])};
             instruments.put(elementArray[0], valueArray);
         }
     }
 
-    // public void changeQuanity(String , String quantity) {
-    //     int quantityInt = Integer.parseInt(quantity);
+    public boolean changeQuanity(Message message) {
+        String instrument = message.getSecurityID();
+        int quantity = message.getNumShares();
+        int price = message.getPrice();
+        int side = message.getSide();
 
-    // }
+        if (!instruments.containsKey(instrument)) {
+            return false;
+        }
+
+        Integer[] currentInstrumentValue = instruments.get(instrument);
+        Integer[] newInstrumentValue = new Integer[2];
+        if (side == 1 && quantity <= currentInstrumentValue[0] && price == currentInstrumentValue[1]) {
+            newInstrumentValue[0] = currentInstrumentValue[0] - quantity;
+            newInstrumentValue[1] = currentInstrumentValue[1];
+            instruments.replace(instrument, newInstrumentValue);
+        }
+        else if (side == 2 && price == currentInstrumentValue[1]) {
+            newInstrumentValue[0] = currentInstrumentValue[0] + quantity;
+            newInstrumentValue[1] = currentInstrumentValue[1];
+            instruments.replace(instrument, newInstrumentValue);
+        }
+        else
+            return false;
+        return true;
+    }
 
     public void printInstruments() {
+        System.out.println("MARKET INVENTORY:");
         for (String i : instruments.keySet()) {
-            System.out.println("Instrument: " + i + ", Quantity: " + instruments.get(i)[0] + ", Price: " + instruments.get(i)[1]);
+            System.out.println("    Instrument: " + i + ", Quantity: " + instruments.get(i)[0] + ", Price: " + instruments.get(i)[1]);
         }
     }
 
-    public HashMap<String, String[]> getInstruments() {
+    public HashMap<String, Integer[]> getInstruments() {
         return instruments;
     }
 

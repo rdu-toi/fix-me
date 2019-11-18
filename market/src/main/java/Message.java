@@ -15,7 +15,7 @@ public class Message {
         try {
             String[] messageArray = data.split("\\|");
             for (String message : messageArray) {
-                if (message.contains("8=")) {                                                       // BeginString(FIX Version) -	8=String [FIX.4.2]
+                if (message.contains("8=") && message.equals("8="+message.substring(message.indexOf("8=") + 2))) {                                                       // BeginString(FIX Version) -	8=String [FIX.4.2]
                     String value = message.substring(message.indexOf("8=") + 2);
                     if (!value.equals("FIX.4.2")) {
                         this.setValid(false);
@@ -40,7 +40,7 @@ public class Message {
                     this.setSecurityID(value);
                 } else if (message.contains("53=")) {                                               // NumShares			    -	53=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("53=") + 3));
-                    if (value > 0) {
+                    if (value < 0) {
                         this.setValid(false);
                         return;
                     }
@@ -56,9 +56,32 @@ public class Message {
                 // }
             }
         } catch (NumberFormatException | NullPointerException nfe) {
+            System.out.println(nfe);
             this.setValid(false);
             return;
         }
+    }
+
+    public boolean checkValidity() {
+        if (this.isValid() == false)
+            return false;
+        else if (this.beginString == null)
+            return false;
+        else if (this.securityID == null)
+            return false;
+        else if (this.clientId == 0)
+            return false;
+        else if (this.ordType == 0)
+            return false;
+        else if (this.side == 0)
+            return false;
+        else if (this.numShares == 0)
+            return false;
+        else if (this.exDestination == 0)
+            return false;
+        else if (this.price == 0)
+            return false;
+        return true;
     }
 
     public boolean isValid() {
@@ -78,7 +101,8 @@ public class Message {
     }
 
     public void setPrice(int price) {
-        this.price = price;
+        if (this.price == 0)
+            this.price = price;
     }
 
     public int getExDestination() {
@@ -86,7 +110,8 @@ public class Message {
     }
 
     public void setExDestination(int exDestination) {
-        this.exDestination = exDestination;
+        if (this.exDestination == 0)
+            this.exDestination = exDestination;
     }
 
     public int getNumShares() {
@@ -94,7 +119,8 @@ public class Message {
     }
 
     public void setNumShares(int numShares) {
-        this.numShares = numShares;
+        if (this.numShares == 0)
+            this.numShares = numShares;
     }
 
     public int getSide() {
@@ -102,7 +128,8 @@ public class Message {
     }
 
     public void setSide(int side) {
-        this.side = side;
+        if (this.side == 0)
+            this.side = side;
     }
 
     public int getOrdType() {
@@ -110,15 +137,17 @@ public class Message {
     }
 
     public void setOrdType(int ordType) {
-        this.ordType = ordType;
+        if (this.ordType == 0)
+            this.ordType = ordType;
     }
 
-    public int getcClientId() {
+    public int getClientId() {
         return clientId;
     }
 
     public void setClientId(int clientId) {
-        this.clientId = clientId;
+        if (this.clientId == 0)
+            this.clientId = clientId;
     }
 
     public String getBeginString() {
@@ -126,11 +155,13 @@ public class Message {
     }
 
     public void setBeginString(String beginString) {
-        this.beginString = beginString;
+        if (this.beginString == null)
+            this.beginString = beginString;
     }
 
     public void setSecurityID(String securityID) {
-		this.securityID = securityID;
+        if (this.securityID == null)
+		    this.securityID = securityID;
 	}
 
 }

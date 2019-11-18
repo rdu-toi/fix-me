@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 
 // FIX MESSAGE FORMAT:
 // BeginString(FIX Version) -	8=String [FIX.4.2]
@@ -19,10 +18,7 @@ public class Market {
 
     public static void main(String[] args) {
         String id;
-        String brokerId;
-
         Instruments instruments = new Instruments();
-        instruments.printInstruments();
 
         try {
             SocketChannel client = SocketChannel.open(new InetSocketAddress("localhost", 5001));
@@ -33,15 +29,31 @@ public class Market {
             System.out.println("Started marketClient!");
 
             while (true) {
+                instruments.printInstruments();
+                String status = "Rejected";
                 buffer = ByteBuffer.allocate(1024);
                 client.read(buffer);
                 String messageReceived = new String(buffer.array()).trim();
                 Message message = new Message(messageReceived);
                 System.out.println("Received message: " + messageReceived);
+                if (message.checkValidity()) {
+                    System.out.println("Message is valid!");
+                    if (instruments.changeQuanity(message)) {
+                        status = "Accepted";
+                        System.out.println("Order Accepted!");
+                    }
+                    else
+                        System.out.println("Order Rejected!");
+                }
+                else {
+                    System.out.println("Message is not valid!");
+                    System.out.println("Order Rejected!");
+                }
                 if (messageReceived.equals("Just testing"))
                     break;
+                String returnMessage = "8=FIX.4.2|109="+id+"|100="+message.getClientId()+"|"+status;
                 buffer = ByteBuffer.allocate(1024);
-                buffer.put(messageReceived.getBytes());
+                buffer.put(returnMessage.getBytes());
                 buffer.flip();
                 client.write(buffer);
             }

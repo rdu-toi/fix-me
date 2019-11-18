@@ -32,9 +32,9 @@ public class ServerHandler implements Runnable {
         while (true) {
             try {
                 if (serverFlag == 1)
-                    System.out.println("[ROUTER] Waiting for market connection...");
+                    System.out.println("[ROUTER]" + "\u001B[36m" + " Waiting for market connection..." + "\u001B[0m");
                 else
-                    System.out.println("[ROUTER] Waiting for broker connection...");
+                    System.out.println("[ROUTER]" + "\u001B[36m" + " Waiting for broker connection..." + "\u001B[0m");
                 selector.select();
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
                 Iterator<SelectionKey> i = selectedKeys.iterator();
@@ -57,16 +57,14 @@ public class ServerHandler implements Runnable {
 
     private void handleAccept(SelectionKey key) {
         if (serverFlag == 1) {
-            System.out.println("[ROUTER] Connected to market client!");
+            System.out.println("[ROUTER]" + "\u001B[32m" + " Connected to market client!" + "\u001B[0m");
             SocketChannel client;
             try {
                 client = Router.marketChannel.accept();
                 client.configureBlocking(false);
                 client.register(selector, SelectionKey.OP_READ);
-                // String portNum = String.valueOf(client.getLocalAddress());
-                // System.out.println(portNum.substring(portNum.indexOf(":") + 1));
                 Router.markets.put(++Router.marketId, client);
-                System.out.println("Number of connected markets: " + Router.markets.size());
+                System.out.println("[ROUTER]" + "\u001B[33m" + " Number of connected brokers: " + Router.markets.size() + "\u001B[0m");
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
                 buffer.put(String.valueOf(Router.marketId).getBytes());
                 buffer.flip();
@@ -75,14 +73,14 @@ public class ServerHandler implements Runnable {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("[ROUTER] Connected to broker client!");
+            System.out.println("[ROUTER]" + "\u001B[32m" + " Connected to broker client!" + "\u001B[0m");
             SocketChannel client;
             try {
                 client = Router.brokerChannel.accept();
                 client.configureBlocking(false);
                 client.register(selector, SelectionKey.OP_READ);
                 Router.brokers.put(++Router.brokerId, client);
-                System.out.println("Number of connected brokers: " + Router.brokers.size());
+                System.out.println("[ROUTER]" + "\u001B[33m" + " Number of connected brokers: " + Router.brokers.size() + "\u001B[0m");
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
                 buffer.put(String.valueOf(Router.brokerId).getBytes());
                 buffer.flip();
@@ -95,9 +93,9 @@ public class ServerHandler implements Runnable {
 
     private void handleRead(SelectionKey key) throws IOException {
         if (serverFlag == 1)
-            System.out.println("Reading from market...");
+            System.out.println("[ROUTER]" + "\u001B[33m" + " Reading from market..." + "\u001B[0m");
         else
-            System.out.println("Reading from client...");
+            System.out.println("[ROUTER]" + "\u001B[33m" + " Reading from client..." + "\u001B[0m");
         SocketChannel client = (SocketChannel) key.channel();
 
         ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -107,18 +105,19 @@ public class ServerHandler implements Runnable {
             String[] messageArray = data.split("\\|");
             if (messageArray[1].equalsIgnoreCase("exit")) {
                 client.close();
-                // Remove client from either market or broker hashmaps based on client Id
+                int clientToRemove = Integer.parseInt(messageArray[0].substring(messageArray[0].indexOf("109=") + 4));
                 if (serverFlag == 1)
-                    Router.markets.remove(Integer.parseInt(messageArray[0]));
+                    Router.markets.remove(clientToRemove);
                 else
-                    Router.brokers.remove(Integer.parseInt(messageArray[0]));
-                System.out.println("Connection closed...");
+                    Router.brokers.remove(clientToRemove);
+                System.out.println("[ROUTER]" + "\u001B[91m" + " Client[id=" + clientToRemove + "] disconnected" + "\u001B[0m");
+                return;
             }
             for (String message: messageArray) {
                 if (message.contains("100=")) {
                     if (serverFlag == 1) {
                         int brokerId = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
-                        System.out.println("Market looking to connect to broker of ID: " + brokerId);
+                        System.out.println("[ROUTER]" + "\u001B[33m" + " Market looking to connect to broker of ID: " + brokerId + "\u001B[0m");
                         SocketChannel brokerClient = Router.brokers.get(brokerId);
                         buffer = ByteBuffer.allocate(1024);
                         buffer.put(data.getBytes());
@@ -127,7 +126,7 @@ public class ServerHandler implements Runnable {
                     }
                     else {
                         int marketId = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
-                        System.out.println("Broker looking to connect to market of ID: " + marketId);
+                        System.out.println("[ROUTER]" + "\u001B[33m" + " Broker looking to connect to market of ID: " + marketId + "\u001B[0m");
                         SocketChannel marketClient = Router.markets.get(marketId);
                         buffer = ByteBuffer.allocate(1024);
                         buffer.put(data.getBytes());
