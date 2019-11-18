@@ -40,7 +40,7 @@ public class Market {
                 }
                 if (messageReceived.equals("Just testing"))
                     break;
-                String returnMessage = "8=FIX.4.2|109="+id+"|100="+message.getClientId()+"|"+status;
+                String returnMessage = "8=FIX.4.2|109="+id+"|100="+message.getClientId()+"|"+status+"|";
                 buffer = ByteBuffer.allocate(1024);
                 buffer.put(returnMessage.getBytes());
                 buffer.flip();

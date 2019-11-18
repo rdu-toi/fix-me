@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class Broker {
-
-    public static String id;
     public static void main(String[] args) {
+        String id;
+        Checksum checkSum = new Checksum();
         try {
             SocketChannel client = SocketChannel.open(new InetSocketAddress("localhost", 5000));
             ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -20,11 +20,12 @@ public class Broker {
             id = data;
             System.out.println("Started brokerClient!");
 
-            String message = getMessage(); // Still need to calculate and add checksum
+            String message = getMessage(id); // Still need to calculate and add checksum
+            String finalMessage = checkSum.convert(message);
             System.out.println("Prepared message: " + message);
             System.out.println("Message Sent!");
             buffer = ByteBuffer.allocate(1024);
-            buffer.put(message.getBytes());
+            buffer.put(finalMessage.getBytes());
             buffer.flip();
             client.write(buffer);
             buffer = ByteBuffer.allocate(1024);
@@ -33,8 +34,9 @@ public class Broker {
             System.out.println("Received message: " + messageReceived);
             
             buffer = ByteBuffer.allocate(1024);
-            String exit = "109="+id+"|exit";
-            buffer.put(exit.getBytes());
+            String exit = "109="+id+"|exit|";
+            String finalExit = checkSum.convert(exit);
+            buffer.put(finalExit.getBytes());
             buffer.flip();
             client.write(buffer);
 
@@ -46,7 +48,7 @@ public class Broker {
         }
     }
 
-    private static String getMessage() {
+    private static String getMessage(String id) {
         List<String> lines = Collections.emptyList(); 
         try
         {

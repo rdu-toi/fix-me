@@ -9,45 +9,46 @@ public class Message {
     private int numShares = 0;
     private int exDestination = 0;
     private int price = 0;
-    // private Int Checksum;
+    private String checkSum = null;
 
     public Message(String data) {
         try {
             String[] messageArray = data.split("\\|");
             for (String message : messageArray) {
-                if (message.contains("8=") && message.equals("8="+message.substring(message.indexOf("8=") + 2))) {                                                       // BeginString(FIX Version) -	8=String [FIX.4.2]
+                if (message.contains("8=") && message.equals("8=" + message.substring(message.indexOf("8=") + 2))) {    // BeginString(FIX Version): 8=String [FIX.4.2]
                     String value = message.substring(message.indexOf("8=") + 2);
                     if (!value.equals("FIX.4.2"))
                         this.setValid(false);
                     this.setBeginString(value);
-                } else if (message.contains("109=")) {                                              // ClientId: 109=Int
+                } else if (message.contains("109=")) {                                                                  // ClientId: 109=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("109=") + 4));
                     this.setClientId(value);
-                } else if (message.contains("40=")) {                                               // OrdType: 40=Int [1=Market]
+                } else if (message.contains("40=")) {                                                                   // OrdType: 40=Int [1=Market]
                     int value = Integer.parseInt(message.substring(message.indexOf("40=") + 3));
                     if (value != 1)
                         this.setValid(false);
                     this.setOrdType(value);
-                } else if (message.contains("54=")) {                                               // Side(Buy or Sell): 54=Int [Buy=1, Sell=2]
+            } else if (message.contains("54=")) {                                                                       // Side(Buy or Sell): 54=Int [Buy=1, Sell=2]
                     int value = Integer.parseInt(message.substring(message.indexOf("54=") + 3));
                     this.setSide(value);
-                } else if (message.contains("48=")) {                                               // SecurityID(Instrument): 48=String
+                } else if (message.contains("48=")) {                                                                   // SecurityID(Instrument): 48=String
                     String value = message.substring(message.indexOf("48=") + 3);
                     this.setSecurityID(value);
-                } else if (message.contains("53=")) {                                               // NumShares: 53=Int
+                } else if (message.contains("53=")) {                                                                   // NumShares: 53=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("53=") + 3));
                     if (value < 0)
                         this.setValid(false);
                     this.setNumShares(value);
-                } else if (message.contains("100=")) {                                              // ExDestination: 100=Int
+                } else if (message.contains("100=")) {                                                                  // ExDestination: 100=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("100=") + 4));
                     this.setExDestination(value);
-                } else if (message.contains("44=")) {                                               // Price: 44=Int
+                } else if (message.contains("44=")) {                                                                   // Price: 44=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("44=") + 3));
                     this.setPrice(value);
+                } else if (message.contains("10=")) {                                                                   // CheckSum: 10=Int
+                    String value = message.substring(message.indexOf("10=") + 3);
+                    this.setSecurityID(value);
                 }
-                // else if (message.contains("10=")) {                                                 // CheckSum: 10=Int
-                // }
             }
         } catch (NumberFormatException | NullPointerException nfe) {
             System.out.println(nfe);
@@ -156,6 +157,15 @@ public class Message {
     public void setSecurityID(String securityID) {
         if (this.securityID == null)
 		    this.securityID = securityID;
-	}
+    }
+
+    public String getChecksum() {
+        return checkSum;
+    }
+
+    public void setChecksum(String checkSum) {
+        if (this.checkSum == null)
+            this.checkSum = checkSum;
+    }
 
 }
