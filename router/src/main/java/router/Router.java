@@ -57,24 +57,6 @@ public class Router {
     }
 
     public static void main(String[] args) throws IOException {
-        Router server = new Router();
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        server.shutDown();
+        new Router();
     }
-
-    private void shutDown() {
-        try {
-            brokerChannel.close();
-            marketChannel.close();
-            taskExecutor.shutdownNow();
-        } catch (IOException e){
-            System.out.println(e);
-        }
-    }
-
 }

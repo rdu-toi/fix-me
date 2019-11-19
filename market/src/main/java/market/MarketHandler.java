@@ -6,6 +6,7 @@ import market.Message;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.SocketChannel;
@@ -22,7 +23,8 @@ public class MarketHandler implements Runnable{
         try {
             client = SocketChannel.open(new InetSocketAddress("localhost", 5001));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("The router is not available right now, please try again later.");
+            System.exit(0);
         }
         t = new Thread(this);
         t.start();
@@ -41,7 +43,9 @@ public class MarketHandler implements Runnable{
             System.out.println("Started marketClient!");
 
             while (true) {
+                System.out.println("MARKET ID: " + String.format("%06d", Integer.parseInt(id)));
                 instruments.printInstruments();
+                System.out.println("Type 'exit' to quit.");
                 String status = "Rejected";
                 buffer = ByteBuffer.allocate(1024);
                 client.read(buffer);
@@ -71,7 +75,16 @@ public class MarketHandler implements Runnable{
                 buffer.put(finalReturnMessage.getBytes());
                 buffer.flip();
                 client.write(buffer);
+                System.out.println("Type 'exit' to quit.");
             }
+        } catch (SocketException e) {
+            try {
+				client.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            System.exit(0);
         } catch (AsynchronousCloseException e) {
             // System.out.println("Client connection closing...");
         } catch (IOException e) {

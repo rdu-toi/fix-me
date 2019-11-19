@@ -23,7 +23,8 @@ public class BrokerHandler implements Runnable {
         try {
             client = SocketChannel.open(new InetSocketAddress("localhost", 5000));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("The router is not available right now, please try again later.");
+            System.exit(0);
         }
         t = new Thread(this);
         t.start();
@@ -37,6 +38,7 @@ public class BrokerHandler implements Runnable {
             String data = new String(buffer.array()).trim();
             id = data;
             System.out.println("Started brokerClient!");
+            System.out.println("BROKER ID: " + String.format("%06d", Integer.parseInt(id)));
 
             String message = getMessage(id); // Still need to calculate and add checksum
             String finalMessage = message + "10=" + checkSum.convert(message) + "|";
@@ -50,18 +52,19 @@ public class BrokerHandler implements Runnable {
             client.read(buffer);
             String messageReceived = new String(buffer.array()).trim();
             System.out.println("Received message: " + messageReceived);
+            System.out.println("Type 'exit' to quit.");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public String getMessage(String id) {
+    public String getMessage(String id) throws IOException {
         List<String> lines = Collections.emptyList(); 
         try
         {
           lines = Files.readAllLines(Paths.get(System.getProperty("user.dir") + "/broker/src/main/java/", "messages.txt"), StandardCharsets.UTF_8); 
-        } 
+        }
 
         catch (IOException e) 
         { 
@@ -73,7 +76,14 @@ public class BrokerHandler implements Runnable {
         String rawInstruments = lines.get(choice);
 
         String[] instrumentsArray = rawInstruments.split("109=");
-        String message = instrumentsArray[0] + "109=" + String.format("%06d", Integer.parseInt(id)) + instrumentsArray[1];
+        String message = null;
+        try {
+            message = instrumentsArray[0] + "109=" + String.format("%06d", Integer.parseInt(id)) + instrumentsArray[1];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Incorrect input dummy!");
+            exit();
+            System.exit(0);
+        }
         return message;
     }
 
