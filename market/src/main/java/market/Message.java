@@ -3,7 +3,6 @@ package market;
 public class Message {
 
     private boolean isValid = true;
-    private String beginString = null;
     private int clientId = 0;
     private int ordType = 0;
     private int side = 0;
@@ -17,12 +16,7 @@ public class Message {
         try {
             String[] messageArray = data.split("\\|");
             for (String message : messageArray) {
-                if (message.contains("8=") && message.equals("8=" + message.substring(message.indexOf("8=") + 2))) {    // BeginString(FIX Version): 8=String [FIX.4.2]
-                    String value = message.substring(message.indexOf("8=") + 2);
-                    if (!value.equals("FIX.4.2"))
-                        this.setValid(false);
-                    this.setBeginString(value);
-                } else if (message.contains("109=")) {                                                                  // ClientId: 109=Int
+                if (message.contains("109=")) {                                                                  // ClientId: 109=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("109=") + 4));
                     this.setClientId(value);
                 } else if (message.contains("40=")) {                                                                   // OrdType: 40=Int [1=Market]
@@ -61,8 +55,6 @@ public class Message {
 
     public boolean checkValidity() {
         if (this.isValid() == false)
-            return false;
-        else if (this.beginString == null)
             return false;
         else if (this.securityID == null)
             return false;
@@ -145,15 +137,6 @@ public class Message {
     public void setClientId(int clientId) {
         if (this.clientId == 0)
             this.clientId = clientId;
-    }
-
-    public String getBeginString() {
-        return beginString;
-    }
-
-    public void setBeginString(String beginString) {
-        if (this.beginString == null)
-            this.beginString = beginString;
     }
 
     public void setSecurityID(String securityID) {

@@ -108,9 +108,9 @@ public class ServerHandler implements Runnable {
         String data = new String(buffer.array()).trim();
         if (data.length() > 0) {
             String[] messageArray = data.split("\\|");
-            if (messageArray[2].equalsIgnoreCase("exit")) {
+            if (messageArray[1].equalsIgnoreCase("exit")) {
                 client.close();
-                int clientToRemove = Integer.parseInt(messageArray[1].substring(messageArray[1].indexOf("109=") + 4));
+                int clientToRemove = Integer.parseInt(messageArray[0].substring(messageArray[0].indexOf("109=") + 4));
                 if (serverFlag == 1) {
                     Router.markets.remove(clientToRemove);
                     System.out.println("[ROUTER]" + "\u001B[91m" + " MarketClient[id=" + clientToRemove + "] disconnected" + "\u001B[0m");

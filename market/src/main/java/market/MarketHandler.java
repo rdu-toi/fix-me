@@ -69,7 +69,7 @@ public class MarketHandler implements Runnable{
                     System.out.println("Message is not valid!");
                     System.out.println("Order Rejected!");
                 }
-                String returnMessage = "8=FIX.4.2|109=" + String.format("%06d", Integer.parseInt(id)) + "|100=" + String.format("%06d", message.getClientId()) + "|" + status + "|";
+                String returnMessage = "109=" + String.format("%06d", Integer.parseInt(id)) + "|100=" + String.format("%06d", message.getClientId()) + "|" + status + "|";
                 String finalReturnMessage = returnMessage + "10=" + checkSum.convert(returnMessage) + "|";
                 buffer = ByteBuffer.allocate(1024);
                 buffer.put(finalReturnMessage.getBytes());
@@ -94,7 +94,7 @@ public class MarketHandler implements Runnable{
 
     public void exit() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-        String exit = "8=FIX.4.2|109=" + String.format("%06d", Integer.parseInt(id)) + "|exit|10=";
+        String exit = "109=" + String.format("%06d", Integer.parseInt(id)) + "|exit|10=";
         String finalExit = exit + checkSum.convert(exit) + "|";
         buffer.put(finalExit.getBytes());
         buffer.flip();

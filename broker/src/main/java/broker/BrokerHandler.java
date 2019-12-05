@@ -75,10 +75,9 @@ public class BrokerHandler implements Runnable {
 
         String rawInstruments = lines.get(choice);
 
-        String[] instrumentsArray = rawInstruments.split("109=");
         String message = null;
         try {
-            message = instrumentsArray[0] + "109=" + String.format("%06d", Integer.parseInt(id)) + instrumentsArray[1];
+            message = "109=" + String.format("%06d", Integer.parseInt(id)) + "|" + rawInstruments;
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Incorrect input dummy!");
             exit();
@@ -89,7 +88,7 @@ public class BrokerHandler implements Runnable {
 
 	public void exit() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-        String exit = "8=FIX.4.2|109=" + String.format("%06d", Integer.parseInt(id)) + "|exit|10=";
+        String exit = "109=" + String.format("%06d", Integer.parseInt(id)) + "|exit|10=";
         String finalExit = exit + checkSum.convert(exit) + "|";
         buffer.put(finalExit.getBytes());
         buffer.flip();
