@@ -1,6 +1,6 @@
 2
 Working example (Change as needed):
-40=1|54=2|48=CDLX|53=34|100=000001|44=56|
+40=1|54=1|48=ARWR|53=10|100=000001|44=47|
 
 OrdType(An order to the Market) Incorrect:
 40=5|54=1|48=ARWR|53=10|100=000001|44=47|
@@ -19,6 +19,7 @@ FIX MESSAGE FORMAT:
     NumShares			    -	53=Int
     ExDestination			-	100=Int
     Price				    -	44=Int
+    TransactionId           -   110=Int
     CheckSum			    -	10=Int
 
 Working example:

@@ -42,7 +42,7 @@ public class BrokerHandler implements Runnable {
 
             String message = getMessage(id); // Still need to calculate and add checksum
             String finalMessage = message + "10=" + checkSum.convert(message) + "|";
-            System.out.println("Prepared message: " + message);
+            System.out.println("Prepared message: " + finalMessage);
             System.out.println("Message Sent!");
             buffer = ByteBuffer.allocate(1024);
             buffer.put(finalMessage.getBytes());
@@ -77,7 +77,7 @@ public class BrokerHandler implements Runnable {
 
         String message = null;
         try {
-            message = "109=" + String.format("%06d", Integer.parseInt(id)) + "|" + rawInstruments;
+            message = "109=" + String.format("%06d", Integer.parseInt(id)) + "|" + rawInstruments + "110=" + System.currentTimeMillis() + "|";
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Incorrect input dummy!");
             exit();
@@ -88,7 +88,7 @@ public class BrokerHandler implements Runnable {
 
 	public void exit() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-        String exit = "109=" + String.format("%06d", Integer.parseInt(id)) + "|exit|10=";
+        String exit = "109=" + String.format("%06d", Integer.parseInt(id)) + "|exit|110=" + System.currentTimeMillis() + "|10=";
         String finalExit = exit + checkSum.convert(exit) + "|";
         buffer.put(finalExit.getBytes());
         buffer.flip();

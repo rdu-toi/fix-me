@@ -4,6 +4,7 @@ public class Message {
 
     private boolean isValid = true;
     private int clientId = 0;
+    private long validationId = 0;
     private int ordType = 0;
     private int side = 0;
     private String securityID = null;
@@ -16,15 +17,18 @@ public class Message {
         try {
             String[] messageArray = data.split("\\|");
             for (String message : messageArray) {
-                if (message.contains("109=")) {                                                                  // ClientId: 109=Int
+                if (message.contains("109=")) {                                                                         // ClientId: 109=Int
                     int value = Integer.parseInt(message.substring(message.indexOf("109=") + 4));
                     this.setClientId(value);
+                } else if (message.contains("110=")) {                                                                  // ValidationId: 110=Int
+                    long value = Long.parseLong(message.substring(message.indexOf("110=") + 4));
+                    this.setValidationId(value);
                 } else if (message.contains("40=")) {                                                                   // OrdType: 40=Int [1=Market]
                     int value = Integer.parseInt(message.substring(message.indexOf("40=") + 3));
                     if (value != 1)
                         this.setValid(false);
                     this.setOrdType(value);
-            } else if (message.contains("54=")) {                                                                       // Side(Buy or Sell): 54=Int [Buy=1, Sell=2]
+                } else if (message.contains("54=")) {                                                                   // Side(Buy or Sell): 54=Int [Buy=1, Sell=2]
                     int value = Integer.parseInt(message.substring(message.indexOf("54=") + 3));
                     this.setSide(value);
                 } else if (message.contains("48=")) {                                                                   // SecurityID(Instrument): 48=String
@@ -69,6 +73,8 @@ public class Message {
         else if (this.exDestination <= 0)
             return false;
         else if (this.price <= 0)
+            return false;
+        else if (this.validationId <= 0)
             return false;
         return true;
     }
@@ -151,6 +157,15 @@ public class Message {
     public void setChecksum(String checkSum) {
         if (this.checkSum == null)
             this.checkSum = checkSum;
+    }
+    
+    public long getValidationId() {
+        return validationId;
+    }
+
+    public void setValidationId(long validationId) {
+        if (this.validationId == 0)
+            this.validationId = validationId;
     }
 
 }
